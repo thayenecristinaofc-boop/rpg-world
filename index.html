@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RPG World</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/babel-standalone/babel.min.js"></script>
+  <style>
+    body { margin:0; padding:0; font-family: 'Segoe UI', sans-serif; background: #0d1b2a; color: #fff; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    const uid = () => Math.random().toString(36).slice(2, 9);
+    const now = () => new Date().toISOString();
+
+    function App() {
+      const [screen, setScreen] = useState("login");
+      const [currentUser, setCurrentUser] = useState(null);
+
+      const users = [
+        { id: "u1", username: "momoe", password: "123", displayName: "Momoe ✨" }
+      ];
+
+      if (screen === "login") {
+        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(#1a0533, #0d1b2a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }},
+          React.createElement('div', { style: { textAlign: 'center' }},
+            React.createElement('h1', { style: { color: '#fff' } }, '⚔️ RPG World'),
+            React.createElement('input', { placeholder: "Usuário", defaultValue: "momoe", style: { display: 'block', margin: '10px auto', padding: '12px', width: '280px', borderRadius: '8px' }}),
+            React.createElement('input', { type: "password", placeholder: "Senha", defaultValue: "123", style: { display: 'block', margin: '10px auto', padding: '12px', width: '280px', borderRadius: '8px' }}),
+            React.createElement('button', { 
+              onClick: () => setCurrentUser(users[0]) || setScreen("explore"),
+              style: { padding: '12px 30px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', marginTop: '10px' }
+            }, 'Entrar')
+          )
+        );
+      }
+
+      return React.createElement('div', { style: { padding: '20px', textAlign: 'center' } },
+        React.createElement('h1', null, `Bem-vindo, ${currentUser.displayName}!`),
+        React.createElement('p', null, 'App RPG carregado com sucesso 🎉'),
+        React.createElement('p', null, 'Você pode instalar como PWA no celular')
+      );
+    }
+
+    ReactDOM.render(
+      React.createElement(App),
+      document.getElementById('root')
+    );
+  </script>
+</body>
+</html>
