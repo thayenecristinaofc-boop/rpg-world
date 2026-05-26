@@ -55,7 +55,6 @@
 
       return React.createElement('div', { style: { marginBottom: 8 }},
         label && React.createElement('p', { style: { margin: "0 0 6px", fontSize: 13, fontWeight: 600, color: "#9b72cf" } }, label),
-        // ... resto do ImagePicker (continua na próxima parte
                                      // ─── Mock Images ───────────────────────────────────────────────────────────
     const IMG = {
       castle: "https://images.unsplash.com/photo-1520637836862-4d197d17c27a?w=600&q=80",
@@ -89,8 +88,6 @@
         coverImage: IMG.castle, creatorId: "u1", memberCount: 1
       },
     ];
-
-    // Continue colando a Parte 3 quando terminar
     // ─── Main App Component ───────────────────────────────────────────────────
     function App() {
       const [users] = React.useState(INITIAL_USERS);
