@@ -91,3 +91,227 @@
     ];
 
     // Continue colando a Parte 3 quando terminar
+    // ─── Main App Component ───────────────────────────────────────────────────
+    function App() {
+      const [users] = React.useState(INITIAL_USERS);
+      const [currentUser, setCurrentUser] = React.useState(null);
+      const [screen, setScreen] = React.useState("login");
+      const [activeCommunity, setActiveCommunity] = React.useState(null);
+      const [innerTab, setInnerTab] = React.useState("home");
+      const [activeChat, setActiveChat] = React.useState(null);
+
+      const handleLogin = (user) => {
+        setCurrentUser(user);
+        setScreen("explore");
+      };
+
+      if (screen === "login") {
+        return React.createElement(LoginScreen, { users, onLogin: handleLogin });
+      }
+
+      if (screen === "explore") {
+        return React.createElement(ExploreScreen, {
+          currentUser,
+          communities: INITIAL_COMMUNITIES,
+          onEnter: (c) => { setActiveCommunity(c); setScreen("community"); }
+        });
+      }
+
+      if (screen === "community") {
+        return React.createElement(CommunityScreen, {
+          currentUser,
+          community: activeCommunity,
+          innerTab,
+          setInnerTab,
+          activeChat,
+          setActiveChat
+        });
+      }
+
+      return React.createElement('div', null, 'Carregando...');
+    }
+
+    // ─── Login Screen ─────────────────────────────────────────────────────────
+    function LoginScreen({ users, onLogin }) {
+      const [username, setUsername] = React.useState("");
+      const [password, setPassword] = React.useState("");
+
+      const handleSubmit = () => {
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) {
+          onLogin(user);
+        } else {
+          alert("Usuário ou senha incorretos. Tente momoe / 123");
+        }
+      };
+
+      return React.createElement('div', {
+        style: {
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #1a0533 0%, #0d1b2a 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff'
+        }
+      },
+        React.createElement('div', { style: { textAlign: 'center', maxWidth: '400px', padding: '20px' }},
+          React.createElement('div', { style: { fontSize: '60px', marginBottom: '20px' }}, '⚔️'),
+          React.createElement('h1', { style: { margin: '0 0 10px' }}, 'RPG World'),
+          React.createElement('p', { style: { color: '#9b72cf', marginBottom: '30px' }}, 'Entre no mundo de aventuras'),
+
+          React.createElement('input', {
+            placeholder: 'Usuário',
+            value: username,
+            onChange: (e) => setUsername(e.target.value),
+            style: { display: 'block', width: '100%', padding: '14px', margin: '10px 0', borderRadius: '12px', border: 'none' }
+          }),
+          React.createElement('input', {
+            type: 'password',
+            placeholder: 'Senha',
+            value: password,
+            onChange: (e) => setPassword(e.target.value),
+            style: { display: 'block', width: '100%', padding: '14px', margin: '10px 0', borderRadius: '12px', border: 'none' }
+          }),
+
+          React.createElement('button', {
+            onClick: handleSubmit,
+            style: {
+              width: '100%',
+              padding: '16px',
+              background: 'linear-gradient(#7c3aed, #9333ea)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '17px',
+              marginTop: '15px',
+              cursor: 'pointer'
+            }
+          }, 'ENTRAR')
+        )
+      );
+    }
+          // ─── Explore Screen ───────────────────────────────────────────────────────
+    function ExploreScreen({ currentUser, communities, onEnter }) {
+      return React.createElement('div', { style: { padding: '20px', minHeight: '100vh', background: '#1a0e2e' }},
+        React.createElement('h1', { style: { color: '#fff', textAlign: 'center' }}, 'Explorar Comunidades'),
+        
+        communities.map(community => 
+          React.createElement('div', {
+            key: community.id,
+            style: {
+              background: '#2a1f3d',
+              margin: '15px 0',
+              borderRadius: '16px',
+              overflow: 'hidden'
+            }
+          },
+            React.createElement('div', {
+              style: {
+                height: '160px',
+                backgroundImage: `url(${community.coverImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }
+            }),
+            React.createElement('div', { style: { padding: '16px' }},
+              React.createElement('h3', { style: { margin: '0 0 8px', color: '#fff' }}, community.name),
+              React.createElement('p', { style: { color: '#ccc', margin: '0 0 12px' }}, community.description),
+              React.createElement('button', {
+                onClick: () => onEnter(community),
+                style: {
+                  width: '100%',
+                  padding: '14px',
+                  background: '#16a34a',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: '700'
+                }
+              }, 'Entrar na Comunidade')
+            )
+          )
+        )
+      );
+    }
+
+    // ─── Community Screen ─────────────────────────────────────────────────────
+    function CommunityScreen({ currentUser, community, innerTab, setInnerTab, activeChat, setActiveChat }) {
+      const [messages, setMessages] = React.useState([]);
+
+      const sendMessage = (text) => {
+        if (!text.trim()) return;
+        setMessages(prev => [...prev, {
+          id: uid(),
+          userId: currentUser.id,
+          text: text,
+          createdAt: now()
+        }]);
+      };
+
+      return React.createElement('div', { style: { minHeight: '100vh', background: '#0d1b2a' }},
+        React.createElement('div', {
+          style: {
+            padding: '16px',
+            background: '#1a2533',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }
+        },
+          React.createElement('button', { onClick: () => setInnerTab("home"), style: { fontSize: '24px' }}, '←'),
+          React.createElement('h2', { style: { margin: 0 }}, community.name)
+        ),
+
+        innerTab === "home" && React.createElement('div', { style: { padding: '20px' }},
+          React.createElement('button', {
+            onClick: () => setInnerTab("chat"),
+            style: { width: '100%', padding: '16px', background: '#7c3aed', border: 'none', borderRadius: '12px', color: 'white', marginBottom: '12px' }
+          }, '💬 Abrir Chat'),
+          React.createElement('button', {
+            onClick: () => setInnerTab("posts"),
+            style: { width: '100%', padding: '16px', background: '#7c3aed', border: 'none', borderRadius: '12px', color: 'white' }
+          }, '✨ Ver Posts')
+        ),
+
+        innerTab === "chat" && React.createElement('div', { style: { height: 'calc(100vh - 60px)', display: 'flex', flexDirection: 'column' }},
+          React.createElement('div', { style: { flex: 1, padding: '16px', overflowY: 'auto' }},
+            messages.map(msg => 
+              React.createElement('div', {
+                key: msg.id,
+                style: { marginBottom: '12px', textAlign: msg.userId === currentUser.id ? 'right' : 'left' }
+              },
+                React.createElement('div', {
+                  style: {
+                    display: 'inline-block',
+                    background: msg.userId === currentUser.id ? '#7c3aed' : '#1f2a3a',
+                    padding: '10px 14px',
+                    borderRadius: '18px',
+                    maxWidth: '80%'
+                  }
+                }, msg.text)
+              )
+            )
+          ),
+          React.createElement('div', { style: { padding: '12px', background: '#1a2533', display: 'flex' }},
+            React.createElement('input', {
+              placeholder: 'Digite sua mensagem...',
+              onKeyDown: (e) => { if (e.key === 'Enter') { sendMessage(e.target.value); e.target.value = ''; } },
+              style: { flex: 1, padding: '14px', borderRadius: '999px', border: 'none', marginRight: '8px' }
+            }),
+            React.createElement('button', {
+              onClick: () => { /* send */ },
+              style: { padding: '0 24px', background: '#7c3aed', border: 'none', borderRadius: '999px', color: 'white' }
+            }, '➤')
+          )
+        )
+      );
+    }
+          // ─── Render App ───────────────────────────────────────────────────────────
+    ReactDOM.render(
+      React.createElement(App),
+      document.getElementById('root')
+    );
+  </script>
+</body>
+</html>
