@@ -9,88 +9,85 @@
   <script src="https://unpkg.com/babel-standalone/babel.min.js"></script>
   <style>
     body { margin:0; font-family: 'Segoe UI', sans-serif; background: #0d1b2a; color: #fff; }
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useRef, useEffect } = React;
-
+    // ─── Utilities ─────────────────────────────────────────────────────────────
     const uid = () => Math.random().toString(36).slice(2, 9);
     const now = () => new Date().toISOString();
 
-    function ImagePicker({ value, onChange }) {
+    const timeAgo = (iso) => {
+      const diff = Date.now() - new Date(iso).getTime();
+      const m = Math.floor(diff / 60000);
+      if (m < 1) return "agora";
+      if (m < 60) return `há ${m} min`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `há ${h}h`;
+      const d = Math.floor(h / 24);
+      if (d < 30) return `há ${d} dias`;
+      return "há 6 meses";
+    };
+
+    // ─── ImagePicker ───────────────────────────────────────────────────────────
+    function ImagePicker({ value, onChange, label, height = 110, round = false, placeholder = "📷 Adicionar imagem" }) {
+      const [mode, setMode] = React.useState(null);
+      const [urlInput, setUrlInput] = React.useState("");
       const fileRef = React.useRef();
+
       const handleFile = (e) => {
         const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (ev) => onChange(ev.target.result);
-          reader.readAsDataURL(file);
-        }
-      };
-      return React.createElement('div', {},
-        React.createElement('input', { ref: fileRef, type: "file", accept: "image/*", onChange: handleFile, style: {display: "none"} }),
-        React.createElement('button', { onClick: () => fileRef.current.click(), style: {padding: "10px 20px", background: "#7c3aed", color: "white", border: "none", borderRadius: "8px"} }, "📷 Adicionar Imagem")
-      );
-    }
-
-    function App() {
-      const [screen, setScreen] = useState("login");
-      const [currentUser, setCurrentUser] = useState(null);
-      const [activeCommunity, setActiveCommunity] = useState(null);
-
-      const handleLogin = () => {
-        setCurrentUser({ id: "u1", displayName: "Momoe ✨ Porcelana" });
-        setScreen("explore");
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => { onChange(ev.target.result); setMode(null); };
+        reader.readAsDataURL(file);
+        e.target.value = "";
       };
 
-      if (screen === "login") {
-        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(135deg, #1a0533, #0d1b2a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }},
-          React.createElement('div', { style: { textAlign: 'center', maxWidth: '400px' }},
-            React.createElement('div', { style: { fontSize: '60px', marginBottom: '20px' } }, '⚔️'),
-            React.createElement('h1', { style: { color: '#fff', margin: '0 0 10px' } }, 'RPG World'),
-            React.createElement('p', { style: { color: '#9b72cf' } }, 'Entre no mundo de aventuras'),
-            React.createElement('button', {
-              onClick: handleLogin,
-              style: { marginTop: '30px', padding: '16px 40px', fontSize: '18px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' }
-            }, 'Entrar como Momoe')
-          )
-        );
-      }
+      const confirmUrl = () => {
+        const trimmed = urlInput.trim();
+        if (trimmed) onChange(trimmed);
+        setMode(null);
+        setUrlInput("");
+      };
 
-      if (screen === "explore") {
-        return React.createElement('div', { style: { padding: '20px' } },
-          React.createElement('h1', null, 'Comunidades'),
-          React.createElement('div', { style: { background: '#1e1e2e', padding: '20px', borderRadius: '12px', margin: '15px 0' } },
-            React.createElement('h3', null, 'Confeitaria Doce Amor'),
-            React.createElement('button', {
-              onClick: () => { setActiveCommunity({ name: "Confeitaria Doce Amor" }); setScreen("community"); },
-              style: { padding: '12px 24px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px' }
-            }, 'Entrar')
-          )
-        );
-      }
+      return React.createElement('div', { style: { marginBottom: 8 }},
+        label && React.createElement('p', { style: { margin: "0 0 6px", fontSize: 13, fontWeight: 600, color: "#9b72cf" } }, label),
+        // ... resto do ImagePicker (continua na próxima parte
+                                     // ─── Mock Images ───────────────────────────────────────────────────────────
+    const IMG = {
+      castle: "https://images.unsplash.com/photo-1520637836862-4d197d17c27a?w=600&q=80",
+      castle2: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
+      village: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=600&q=80",
+      forest: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80",
+      sword: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=600&q=80",
+      girl: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=80",
+      girlAutumn: "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=600&q=80",
+      strawberry: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=600&q=80",
+      mango: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80",
+      profileCover: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=800&q=80",
+      profile1: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80",
+      profile2: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=200&q=80",
+      profile3: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80",
+      confeitaria: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80",
+    };
 
-      if (screen === "community") {
-        return React.createElement('div', { style: { padding: '20px' } },
-          React.createElement('button', { onClick: () => setScreen("explore"), style: { marginBottom: '20px' } }, '← Voltar'),
-          React.createElement('h1', null, activeCommunity.name),
-          React.createElement('p', null, 'Bem-vindo à comunidade!'),
-          React.createElement('p', null, 'Aqui você pode conversar, postar e criar histórias.'),
-          React.createElement(ImagePicker, { onChange: (img) => alert('Imagem selecionada!') })
-        );
-      }
+    // ─── Initial Data ──────────────────────────────────────────────────────────
+    const INITIAL_USERS = [
+      { id: "u1", username: "momoe", password: "123", displayName: 'Momoe" ✨ Porcelana', isAdmin: false },
+    ];
 
-      return React.createElement('div', null, 'Carregando...');
-    }
+    const INITIAL_COMMUNITIES = [
+      {
+        id: "c1", name: "Confeitaria Doce Amor", description: "Um mundo doce e mágico de RPG",
+        coverImage: IMG.confeitaria, creatorId: "u1", memberCount: 1
+      },
+      {
+        id: "c2", name: "Reino dos dragões", description: "O reino épico dos dragões",
+        coverImage: IMG.castle, creatorId: "u1", memberCount: 1
+      },
+    ];
 
-    ReactDOM.render(
-      React.createElement(App),
-      document.getElementById('root')
-    );
-  </script>
-</body>
-</html>
+    // Continue colando a Parte 3 quando terminar
