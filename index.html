@@ -8,7 +8,8 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/babel-standalone/babel.min.js"></script>
   <style>
-    body { margin:0; padding:0; font-family: 'Segoe UI', sans-serif; background: #0d1b2a; color: #fff; }
+    body { margin:0; font-family: 'Segoe UI', sans-serif; background: #0d1b2a; color: #fff; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; }
   </style>
 </head>
 <body>
@@ -20,33 +21,70 @@
     const uid = () => Math.random().toString(36).slice(2, 9);
     const now = () => new Date().toISOString();
 
+    function ImagePicker({ value, onChange }) {
+      const fileRef = React.useRef();
+      const handleFile = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (ev) => onChange(ev.target.result);
+          reader.readAsDataURL(file);
+        }
+      };
+      return React.createElement('div', {},
+        React.createElement('input', { ref: fileRef, type: "file", accept: "image/*", onChange: handleFile, style: {display: "none"} }),
+        React.createElement('button', { onClick: () => fileRef.current.click(), style: {padding: "10px 20px", background: "#7c3aed", color: "white", border: "none", borderRadius: "8px"} }, "📷 Adicionar Imagem")
+      );
+    }
+
     function App() {
       const [screen, setScreen] = useState("login");
       const [currentUser, setCurrentUser] = useState(null);
+      const [activeCommunity, setActiveCommunity] = useState(null);
 
-      const users = [
-        { id: "u1", username: "momoe", password: "123", displayName: "Momoe ✨" }
-      ];
+      const handleLogin = () => {
+        setCurrentUser({ id: "u1", displayName: "Momoe ✨ Porcelana" });
+        setScreen("explore");
+      };
 
       if (screen === "login") {
-        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(#1a0533, #0d1b2a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }},
-          React.createElement('div', { style: { textAlign: 'center' }},
-            React.createElement('h1', { style: { color: '#fff' } }, '⚔️ RPG World'),
-            React.createElement('input', { placeholder: "Usuário", defaultValue: "momoe", style: { display: 'block', margin: '10px auto', padding: '12px', width: '280px', borderRadius: '8px' }}),
-            React.createElement('input', { type: "password", placeholder: "Senha", defaultValue: "123", style: { display: 'block', margin: '10px auto', padding: '12px', width: '280px', borderRadius: '8px' }}),
-            React.createElement('button', { 
-              onClick: () => setCurrentUser(users[0]) || setScreen("explore"),
-              style: { padding: '12px 30px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', marginTop: '10px' }
+        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(135deg, #1a0533, #0d1b2a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }},
+          React.createElement('div', { style: { textAlign: 'center', maxWidth: '400px' }},
+            React.createElement('div', { style: { fontSize: '60px', marginBottom: '20px' } }, '⚔️'),
+            React.createElement('h1', { style: { color: '#fff', margin: '0 0 10px' } }, 'RPG World'),
+            React.createElement('p', { style: { color: '#9b72cf' } }, 'Entre no mundo de aventuras'),
+            React.createElement('button', {
+              onClick: handleLogin,
+              style: { marginTop: '30px', padding: '16px 40px', fontSize: '18px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' }
+            }, 'Entrar como Momoe')
+          )
+        );
+      }
+
+      if (screen === "explore") {
+        return React.createElement('div', { style: { padding: '20px' } },
+          React.createElement('h1', null, 'Comunidades'),
+          React.createElement('div', { style: { background: '#1e1e2e', padding: '20px', borderRadius: '12px', margin: '15px 0' } },
+            React.createElement('h3', null, 'Confeitaria Doce Amor'),
+            React.createElement('button', {
+              onClick: () => { setActiveCommunity({ name: "Confeitaria Doce Amor" }); setScreen("community"); },
+              style: { padding: '12px 24px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px' }
             }, 'Entrar')
           )
         );
       }
 
-      return React.createElement('div', { style: { padding: '20px', textAlign: 'center' } },
-        React.createElement('h1', null, `Bem-vindo, ${currentUser.displayName}!`),
-        React.createElement('p', null, 'App RPG carregado com sucesso 🎉'),
-        React.createElement('p', null, 'Você pode instalar como PWA no celular')
-      );
+      if (screen === "community") {
+        return React.createElement('div', { style: { padding: '20px' } },
+          React.createElement('button', { onClick: () => setScreen("explore"), style: { marginBottom: '20px' } }, '← Voltar'),
+          React.createElement('h1', null, activeCommunity.name),
+          React.createElement('p', null, 'Bem-vindo à comunidade!'),
+          React.createElement('p', null, 'Aqui você pode conversar, postar e criar histórias.'),
+          React.createElement(ImagePicker, { onChange: (img) => alert('Imagem selecionada!') })
+        );
+      }
+
+      return React.createElement('div', null, 'Carregando...');
     }
 
     ReactDOM.render(
